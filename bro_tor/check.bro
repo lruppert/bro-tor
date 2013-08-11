@@ -2,10 +2,20 @@
 ##! the activity is logged and a notice is raised.
 
 @load base/frameworks/notice
+@load base/frameworks/software
 
 @load ./main
 
 module Tor;
+ 
+export {
+      redef enum Software::Type += {
+              ## Identifier for Tor clients in the software framework.
+              SERVER,
+              ## Identifier for Tor servers in the software framework.
+              CLIENT,
+      };
+}
 
 global logged_hosts: set[addr] &create_expire=Tor::check_interval;
 
@@ -36,6 +46,7 @@ event Tor::check_host(host: addr, cid: conn_id, uid: string) &priority=5
 		NOTICE([$note=Tor_Host, $msg=msg, $uid=uid, $id=cid,
 		        $identifier=fmt("%s", host),
 		        $suppress_for=Tor::check_interval]);
+		Software::found(cid, [$unparsed_version="detected via ssl",$host=host, $software_type=CLIENT]);
 		
 	        if ( host !in logged_hosts )
 		   {
