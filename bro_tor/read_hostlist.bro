@@ -20,7 +20,7 @@ event bro_init() &priority=5
 	                  $destination=hostlist]);
 	}
 
-event Input::update_finished(name: string, source: string) &priority=5
+event Input::end_of_data(name: string, source: string) &priority=5
 	{
 	if ( name == input_handle )
 		hostlist_ready = T;
