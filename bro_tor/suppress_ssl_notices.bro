@@ -4,6 +4,8 @@
 ##! don't, however, want that alarm to be lost in a cacophony of Tor servers
 ##! shouting "Squirrel!"
 
+@load protocols/ssl/validate-certs
+
 function suppress_tor_ssl_notice(n: Notice::Info): bool
 {
     # Outbound
@@ -16,10 +18,9 @@ function suppress_tor_ssl_notice(n: Notice::Info): bool
     return F;
 }
 
-redef Notice::policy += {
-       [$pred(n:Notice::Info) = { return n$note==SSL::Invalid_Server_Cert && (suppress_tor_ssl_notice(n)); },
-         $halt=T,
-         $priority=3
-       ],
-};
+hook Notice::policy(n: Notice::Info) &priority=3
+	{
+	if ( n$note==SSL::Invalid_Server_Cert && suppress_tor_ssl_notice(n) )
+		break;
+	}
 
